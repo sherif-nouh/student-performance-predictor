@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50c878;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        body {
+            background: var(--background-gradient);
+            min-height: 100vh;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header-card h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header-card p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .form-card {
+            background: white;
+            padding: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+        }
+        
+        .form-section h5 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            color: white;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-reset {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .btn-reset:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 30px;
+            display: none;
+        }
+        
+        .result-card.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .prediction-result {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .prediction-grade {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+        
+        .prediction-category {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .info-item i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-item h6 {
+            margin: 10px 0 5px 0;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .info-item p {
+            margin: 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="card header-card">
+            <h1><i class="fas fa-graduation-cap"></i> Student Performance Predictor</h1>
+            <p>AI-Powered Academic Performance Prediction System</p>
+        </div>
+        
+        <!-- Input Form -->
+        <div class="card form-card">
+            <form id="predictionForm">
+                <!-- Demographics -->
+                <div class="form-section">
+                    <h5><i class="fas fa-user"></i> Demographics</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.age.label }}</label>
+                            <input type="number" class="form-control" name="age" 
+                                   min="{{ features.age.min }}" max="{{ features.age.max }}" 
+                                   value="{{ features.age.default }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.gender.label }}</label>
+                            <select class="form-select" name="gender" required>
+                                {% for option in features.gender.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.romantic.label }}</label>
+                            <select class="form-select" name="romantic" required>
+                                {% for option in features.romantic.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Family Background -->
+                <div class="form-section">
+                    <h5><i class="fas fa-home"></i> Family Background</h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ features.famsize.label }}</label>
+                            <select class="form-select" name="famsize" required>
+                                {% for option in features.famsize.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ features.pstatus.label }}</label>
+                            <select class="form-select" name="pstatus" required>
+                                {% for option in features.pstatus.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ features.medu.label }}</label>
+                            <input type="number" class="form-control" name="medu" 
+                                   min="{{ features.medu.min }}" max="{{ features.medu.max }}" 
+                                   value="{{ features.medu.default }}" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ features.fedu.label }}</label>
+                            <input type="number" class="form-control" name="fedu" 
+                                   min="{{ features.fedu.min }}" max="{{ features.fedu.max }}" 
+                                   value="{{ features.fedu.default }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Academic Factors -->
+                <div class="form-section">
+                    <h5><i class="fas fa-book"></i> Academic Factors</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.studytime.label }}</label>
+                            <input type="number" class="form-control" name="studytime" 
+                                   min="{{ features.studytime.min }}" max="{{ features.studytime.max }}" 
+                                   value="{{ features.studytime.default }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.failures.label }}</label>
+                            <input type="number" class="form-control" name="failures" 
+                                   min="{{ features.failures.min }}" max="{{ features.failures.max }}" 
+                                   value="{{ features.failures.default }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.absences.label }}</label>
+                            <input type="number" class="form-control" name="absences" 
+                                   min="{{ features.absences.min }}" max="{{ features.absences.max }}" 
+                                   value="{{ features.absences.default }}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.g1.label }}</label>
+                            <input type="number" class="form-control" name="g1" 
+                                   min="{{ features.g1.min }}" max="{{ features.g1.max }}" 
+                                   value="{{ features.g1.default }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.g2.label }}</label>
+                            <input type="number" class="form-control" name="g2" 
+                                   min="{{ features.g2.min }}" max="{{ features.g2.max }}" 
+                                   value="{{ features.g2.default }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ features.traveltime.label }}</label>
+                            <input type="number" class="form-control" name="traveltime" 
+                                   min="{{ features.traveltime.min }}" max="{{ features.traveltime.max }}" 
+                                   value="{{ features.traveltime.default }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Factors -->
+                <div class="form-section">
+                    <h5><i class="fas fa-puzzle-piece"></i> Additional Factors</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ features.activities.label }}</label>
+                            <select class="form-select" name="activities" required>
+                                {% for option in features.activities.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ features.internet.label }}</label>
+                            <select class="form-select" name="internet" required>
+                                {% for option in features.internet.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-2">
+                        <button type="submit" class="btn btn-predict">
+                            <i class="fas fa-chart-line"></i> Predict Performance
+                        </button>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <button type="reset" class="btn btn-reset">
+                            <i class="fas fa-redo"></i> Reset Form
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Loading Spinner -->
+            <div class="loading" id="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing student data...</p>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="card result-card" id="resultCard">
+            <h4 class="text-center mb-4"><i class="fas fa-chart-bar"></i> Prediction Results</h4>
+            
+            <div class="prediction-result" id="predictionResult">
+                <h5 class="text-muted">Predicted Final Grade</h5>
+                <div class="prediction-grade" id="predictedGrade">--</div>
+                <div class="prediction-category" id="predictedCategory">
+                    <span class="badge" id="categoryBadge">--</span>
+                </div>
+                <div class="confidence-badge">
+                    <i class="fas fa-check-circle"></i> Confidence: <span id="confidence">--</span>%
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h6>Prediction Date</h6>
+                    <p id="timestamp">--</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h6>Grade Scale</h6>
+                    <p>0-20 Points</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-brain"></i>
+                    <h6>Model</h6>
+                    <p>Random Forest</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultCard').classList.remove('show');
+            
+            // Collect form data
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update results
+                    document.getElementById('predictedGrade').textContent = result.result.predicted_grade;
+                    document.getElementById('predictedCategory').innerHTML = 
+                        `<span class="badge bg-${result.result.color}">${result.result.category}</span>`;
+                    document.getElementById('confidence').textContent = 
+                        (result.result.confidence * 100).toFixed(1);
+                    document.getElementById('timestamp').textContent = result.result.timestamp;
+                    
+                    // Hide loading and show results
+                    document.getElementById('loading').classList.remove('show');
+                    document.getElementById('resultCard').classList.add('show');
+                    
+                    // Scroll to results
+                    document.getElementById('resultCard').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                } else {
+                    throw new Error(result.error || 'Prediction failed');
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.remove('show');
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        // Reset results when form is reset
+        document.getElementById('predictionForm').addEventListener('reset', function() {
+            document.getElementById('resultCard').classList.remove('show');
+        });
+    </script>
+</body>
+</html>
